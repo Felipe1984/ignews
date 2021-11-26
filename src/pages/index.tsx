@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
+import { SubscribeButton } from "src/components/SubscribeButton";
 
 import Woman from "public/images/woman.svg";
 
@@ -19,6 +20,7 @@ export default function Home() {
             Get access to all publications <br />
             <span>for $9.90 month</span>
           </p>
+          <SubscribeButton />
         </section>
 
         <Image
