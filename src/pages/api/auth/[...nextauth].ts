@@ -1,5 +1,7 @@
-import NextAuth from "next-auth"
-import GithubProvider from "next-auth/providers/github"
+import NextAuth from "next-auth";
+import GithubProvider from "next-auth/providers/github";
+import { fauna } from "src/services/fauna";
+import { query as q } from "faunadb";
 
 interface GithubProviderProps {
   clientId: string;
@@ -12,7 +14,45 @@ export default NextAuth({
     GithubProvider({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
-      authorization: "https://github.com/login/oauth/authorize?scope=read:user+user:email"
+      authorization: "https://github.com/login/oauth/authorize?scope=read:user+user:email" 
     })
   ],
+  callbacks: {
+    async signIn({ user, account, profile }) {
+      const { email } = user
+      
+      try {
+        await fauna.query(
+          // q.Create(
+          //   q.Collection('users'),
+          //   { data: { email } }
+          // )
+          q.If(
+            q.Not(
+              q.Exists(
+                q.Match(
+                  q.Index('user_by_email'),
+                  q.Casefold(user.email)
+                )
+              )
+            ),
+            q.Create(
+              q.Collection('users'),
+              { data: { email } }
+            ),
+            q.Get(
+              q.Match(
+                q.Index('user_by_email'),
+                q.Casefold(user.email)
+              )
+            )
+          )
+        )
+        return true
+      } catch {
+        return false
+      }
+
+    }
+  }
 })
