@@ -3,12 +3,6 @@ import GithubProvider from "next-auth/providers/github";
 import { fauna } from "src/services/fauna";
 import { query as q } from "faunadb";
 
-interface GithubProviderProps {
-  clientId: string;
-  clientSecret: string;
-  scope: string;
-}
-
 export default NextAuth({
   providers: [
     GithubProvider({
